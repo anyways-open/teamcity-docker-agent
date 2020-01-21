@@ -60,6 +60,7 @@ RUN apt-get update && \
 RUN apt-get update && apt-get install -y git sudo
 RUN curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
 RUN apt-get install -y nodejs
+RUN npm install -g parcel-bundler
 
 # A better fix for TW-52939 Dockerfile build fails because of aufs
 VOLUME /var/lib/docker
