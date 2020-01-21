@@ -53,6 +53,9 @@ RUN apt-get update && \
         && find /usr/share/dotnet -name "*.lzma" -type f -delete \
         && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet && \
     \
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - \
+    sudo apt-get install -y nodejs \
+    \
     apt-get clean all && \
     \
     usermod -aG docker buildagent
