@@ -53,12 +53,13 @@ RUN apt-get update && \
         && find /usr/share/dotnet -name "*.lzma" -type f -delete \
         && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet && \
     \
-    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - \
-    sudo apt-get install -y nodejs \
-    \
     apt-get clean all && \
     \
     usermod -aG docker buildagent
+   
+RUN apt-get update && apt-get install -y git sudo
+RUN curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+RUN apt-get install -y nodejs
 
 # A better fix for TW-52939 Dockerfile build fails because of aufs
 VOLUME /var/lib/docker
