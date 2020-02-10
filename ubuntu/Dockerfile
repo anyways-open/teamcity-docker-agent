@@ -45,13 +45,6 @@ RUN apt-get update && \
             zlib1g \
         && rm -rf /var/lib/apt/lists/* && \
     \
-    curl -SL https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.101-linux-x64-binaries --output dotnet.tar.gz \
-        && mkdir -p /usr/share/dotnet \
-        && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
-        && rm dotnet.tar.gz \
-        && find /usr/share/dotnet -name "*.lzma" -type f -delete \
-        && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet && \
-    \
     apt-get clean all && \
     \
     usermod -aG docker buildagent
