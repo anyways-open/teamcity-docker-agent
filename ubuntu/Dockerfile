@@ -44,16 +44,16 @@ RUN apt-get update && \
             libssl1.0.0 \
             libstdc++6 \
             zlib1g \
-        && rm -rf /var/lib/apt/lists/* && \
-    \
-    curl -SL https://dotnetcli.blob.core.windows.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-x64.tar.gz --output dotnet.tar.gz \
-        && mkdir -p /usr/share/dotnet \
-        && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
-        && rm dotnet.tar.gz \
-        && find /usr/share/dotnet -name "*.lzma" -type f -delete \
-        && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet && \
-    \
-    apt-get clean all && \
+        && rm -rf /var/lib/apt/lists/*
+RUN sudo add-apt-repository universe
+RUN sudo apt-get update
+RUN sudo apt-get install apt-transport-https
+RUN sudo apt-get update
+RUN sudo apt-get install dotnet-sdk-2.1
+RUN sudo apt-get install dotnet-sdk-2.2
+RUN sudo apt-get install dotnet-sdk-3.1
+
+RUN apt-get clean all && \
     \
     usermod -aG docker buildagent
    
