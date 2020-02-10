@@ -18,7 +18,6 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=true \
     GIT_SSH_VARIANT=ssh \
     # Install .NET Core SDK
     DOTNET_SDK_VERSION=3.1.100
-
 RUN apt-get update && \
     apt-get install -y git mercurial apt-transport-https ca-certificates software-properties-common && \
     \
@@ -44,19 +43,25 @@ RUN apt-get update && \
             libssl1.0.0 \
             libstdc++6 \
             zlib1g \
-        && rm -rf /var/lib/apt/lists/*
-RUN sudo add-apt-repository universe
-RUN sudo apt-get update
-RUN sudo apt-get install apt-transport-https
-RUN sudo apt-get update
-RUN sudo apt-get install dotnet-sdk-2.1
-RUN sudo apt-get install dotnet-sdk-2.2
-RUN sudo apt-get install dotnet-sdk-3.1
-
-RUN apt-get clean all && \
+        && rm -rf /var/lib/apt/lists/* && \
+    \
+    curl -SL https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.101-linux-x64-binaries --output dotnet.tar.gz \
+        && mkdir -p /usr/share/dotnet \
+        && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
+        && rm dotnet.tar.gz \
+        && find /usr/share/dotnet -name "*.lzma" -type f -delete \
+        && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet && \
+    \
+    apt-get clean all && \
     \
     usermod -aG docker buildagent
-   
+
+RUN curl -SL https://dotnetwebsite.azurewebsites.net/download/dotnet-core/scripts/v1/dotnet-install.sh > dotnet-install.sh
+RUN chmod +x dotnet-install.sh
+RUN ./dotnet-install.sh --channel 2.1
+RUN ./dotnet-install.sh --channel 2.2
+RUN ./dotnet-install.sh --channel 3.1
+
 RUN apt-get update && apt-get install -y git sudo
 RUN curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
 RUN apt-get install -y nodejs
