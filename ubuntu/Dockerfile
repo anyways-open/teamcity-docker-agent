@@ -15,9 +15,8 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=true \
     DOTNET_USE_POLLING_FILE_WATCHER=true \
     # Skip extraction of XML docs - generally not useful within an image/container - helps perfomance
     NUGET_XMLDOC_MODE=skip \
-    GIT_SSH_VARIANT=ssh \
-    # Install .NET Core SDK
-    DOTNET_SDK_VERSION=3.1.100
+    GIT_SSH_VARIANT=ssh
+
 RUN apt-get update && \
     apt-get install -y git mercurial apt-transport-https ca-certificates software-properties-common && \
     \
@@ -43,18 +42,41 @@ RUN apt-get update && \
             libssl1.0.0 \
             libstdc++6 \
             zlib1g \
-        && rm -rf /var/lib/apt/lists/* && \
-    \
-    apt-get clean all && \
+        && rm -rf /var/lib/apt/lists/*
+
+ENV DOTNET_SDK_VERSION 2.1.803
+
+RUN curl -SL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-x64.tar.gz \
+    && dotnet_sha512='57d48d6ca1bd92ac348dc05220d984811c0cf005774d7afdfbbf125a842acb0a26572146ed25a7eb26f4e0404fe840b70d1e7ec1fb7c9a5c6cfe81fefc41b363' \
+    && echo "$dotnet_sha512 dotnet.tar.gz" | sha512sum -c - \
+    && mkdir -p /usr/share/dotnet \
+    && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
+    && rm dotnet.tar.gz
+    
+ENV DOTNET_SDK_VERSION 2.2.207
+
+RUN curl -SL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$DOTNET_SDK_VERSION/dotnet-sdk-$DOTNET_SDK_VERSION-linux-x64.tar.gz \
+    && dotnet_sha512='9d70b4a8a63b66da90544087199a0f681d135bf90d43ca53b12ea97cc600a768b0a3d2f824cfe27bd3228e058b060c63319cd86033be8b8d27925283f99de958' \
+    && echo "$dotnet_sha512 dotnet.tar.gz" | sha512sum -c - \
+    && mkdir -p /usr/share/dotnet \
+    && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
+    && rm dotnet.tar.gz
+
+RUN dotnet_sdk_version=3.1.101 \
+    && curl -SL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Sdk/$dotnet_sdk_version/dotnet-sdk-$dotnet_sdk_version-linux-x64.tar.gz \
+    && dotnet_sha512='eeee75323be762c329176d5856ec2ecfd16f06607965614df006730ed648a5b5d12ac7fd1942fe37cfc97e3013e796ef278e7c7bc4f32b8680585c4884a8a6a1' \
+    && echo "$dotnet_sha512 dotnet.tar.gz" | sha512sum -c - \
+    && mkdir -p /usr/share/dotnet \
+    && tar -ozxf dotnet.tar.gz -C /usr/share/dotnet \
+    && rm dotnet.tar.gz \
+    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet \
+    # Trigger first run experience by running arbitrary cmd
+    && dotnet help
+
+RUN apt-get clean all && \
     \
     usermod -aG docker buildagent
-
-RUN curl -SL https://dotnetwebsite.azurewebsites.net/download/dotnet-core/scripts/v1/dotnet-install.sh > dotnet-install.sh
-RUN chmod +x dotnet-install.sh
-RUN ./dotnet-install.sh --channel 2.1
-RUN ./dotnet-install.sh --channel 2.2
-RUN ./dotnet-install.sh --channel 3.1
-
+   
 RUN apt-get update && apt-get install -y git sudo
 RUN curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
 RUN apt-get install -y nodejs
@@ -67,3 +89,4 @@ COPY run-docker.sh /services/run-docker.sh
 
 # Trigger .NET CLI first run experience by running arbitrary cmd to populate local package cache
 RUN dotnet help
+RUN dotnet --list-sdks
